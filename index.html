@@ -146,69 +146,70 @@
     z-index: 50;
     align-items: center; justify-content: center;
     padding: 16px;
-    overflow-y: auto;
   }
   #overlay.show { display: flex; }
   .modal {
     background: var(--card);
     border-radius: 24px;
-    padding: 22px;
+    padding: 14px;
     width: 100%;
     max-width: 420px;
     border: 3px solid rgba(255,255,255,0.15);
     box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+    overflow-y: auto;
+    max-height: 98vh;
   }
-  .modal-title { text-align: center; font-size: 24px; font-weight: 800; margin-bottom: 4px; }
-  .modal-sub { text-align: center; color: var(--purple); font-weight: 600; margin-bottom: 14px; }
+  .modal-title { text-align: center; font-size: 20px; font-weight: 800; margin-bottom: 2px; }
+  .modal-sub { text-align: center; color: var(--purple); font-weight: 600; margin-bottom: 8px; font-size: 13px; }
   .score-display {
     text-align: center;
-    font-size: 56px; font-weight: 900;
+    font-size: 42px; font-weight: 900;
     background: rgba(0,0,0,0.3);
-    border-radius: 16px;
-    padding: 8px;
-    margin-bottom: 14px;
-    min-height: 84px;
+    border-radius: 12px;
+    padding: 4px 8px;
+    margin-bottom: 8px;
+    min-height: 62px;
     color: var(--gold);
     letter-spacing: 2px;
   }
-  .pad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .pad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; }
   .pad button {
-    font-size: 30px; font-weight: 800;
-    padding: 18px 0;
-    border: none; border-radius: 14px;
+    font-size: 22px; font-weight: 800;
+    padding: 11px 0;
+    border: none; border-radius: 12px;
     background: rgba(255,255,255,0.12);
     color: #fff; cursor: pointer;
     transition: transform 0.06s, background 0.15s;
   }
   .pad button:active { transform: scale(0.93); background: rgba(255,255,255,0.25); }
-  .modal-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
+  .modal-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; margin-top: 7px; }
   .bust-btn, .ok-btn, .cancel-btn {
-    font-size: 22px; font-weight: 800;
-    padding: 16px 0;
-    border: none; border-radius: 14px;
+    font-size: 17px; font-weight: 800;
+    padding: 10px 0;
+    border: none; border-radius: 12px;
     cursor: pointer; color: #fff;
-    box-shadow: 0 4px 0 rgba(0,0,0,0.3);
+    box-shadow: 0 3px 0 rgba(0,0,0,0.3);
     transition: transform 0.08s;
   }
-  .bust-btn:active, .ok-btn:active, .cancel-btn:active { transform: translateY(3px); box-shadow: 0 1px 0 rgba(0,0,0,0.3); }
+  .bust-btn:active, .ok-btn:active, .cancel-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 rgba(0,0,0,0.3); }
   .bust-btn { background: linear-gradient(90deg, #ff5e7e, #e63956); grid-column: 1 / -1; }
   .ok-btn { background: linear-gradient(90deg, #3ddc84, #1fa860); color: #0b3320; }
   .cancel-btn { background: rgba(255,255,255,0.15); }
 
   /* ---------- Modal scoreboard ---------- */
   .modal-scoreboard {
-    margin-top: 14px;
-    padding-top: 12px;
+    margin-top: 9px;
+    padding-top: 8px;
     border-top: 1px solid rgba(255,255,255,0.12);
   }
   .modal-scoreboard-label {
-    font-size: 11px; font-weight: 700; letter-spacing: 1.5px;
+    font-size: 10px; font-weight: 700; letter-spacing: 1.5px;
     text-transform: uppercase; color: rgba(255,255,255,0.35);
-    text-align: center; margin-bottom: 8px;
+    text-align: center; margin-bottom: 5px;
   }
   .sb-row {
     display: flex; align-items: center;
-    padding: 6px 10px; border-radius: 10px; margin-bottom: 3px;
+    padding: 4px 8px; border-radius: 8px; margin-bottom: 2px;
     background: rgba(255,255,255,0.04);
     border: 2px solid transparent;
     transition: background 0.15s;
@@ -280,7 +281,7 @@
 <!-- Setup -->
 <div id="setup">
   <div id="nameRows"></div>
-  <button class="big-btn" onclick="startGame()">▶ START GAME</button>
+  <button class="big-btn" onclick="startGame()">&#9654; START GAME</button>
 </div>
 
 <!-- Game -->
@@ -288,8 +289,8 @@
   <div class="round-bar">
     <div class="round-label">ROUND <span id="roundNum">1</span></div>
     <div class="ctrl-btns">
-      <button class="ctrl-btn" id="undoBtn" onclick="undo()" disabled>↩ UNDO</button>
-      <button class="ctrl-btn" id="newGameBtn" onclick="confirmNewGame()">✦ NEW GAME</button>
+      <button class="ctrl-btn" id="undoBtn" onclick="undo()" disabled>&#8617; UNDO</button>
+      <button class="ctrl-btn" id="newGameBtn" onclick="confirmNewGame()">&#10022; NEW GAME</button>
     </div>
   </div>
   <div class="players" id="playerList"></div>
@@ -305,12 +306,12 @@
       <button onclick="padDigit(1)">1</button><button onclick="padDigit(2)">2</button><button onclick="padDigit(3)">3</button>
       <button onclick="padDigit(4)">4</button><button onclick="padDigit(5)">5</button><button onclick="padDigit(6)">6</button>
       <button onclick="padDigit(7)">7</button><button onclick="padDigit(8)">8</button><button onclick="padDigit(9)">9</button>
-      <button onclick="padClear()">C</button><button onclick="padDigit(0)">0</button><button onclick="padBack()">⌫</button>
+      <button onclick="padClear()">C</button><button onclick="padDigit(0)">0</button><button onclick="padBack()">&#9003;</button>
     </div>
-    <button class="bust-btn" style="margin-top:12px;width:100%" onclick="submitScore(0)">💥 BUSTED — 0 POINTS</button>
+    <button class="bust-btn" style="margin-top:8px;width:100%" onclick="submitScore(0)">&#128165; BUSTED &mdash; 0 POINTS</button>
     <div class="modal-actions">
       <button class="cancel-btn" onclick="closeModal()">CANCEL</button>
-      <button class="ok-btn" onclick="submitEntered()">✓ OK</button>
+      <button class="ok-btn" onclick="submitEntered()">&#10003; OK</button>
     </div>
     <div class="modal-scoreboard">
       <div class="modal-scoreboard-label">SCORES</div>
@@ -321,11 +322,11 @@
 
 <!-- Win banner -->
 <div id="winBanner">
-  <div class="win-trophy">🏆</div>
+  <div class="win-trophy">&#127942;</div>
   <div class="win-name" id="winName"></div>
   <div class="win-msg" id="winMsg"></div>
   <div class="win-btns">
-    <button class="again" onclick="newGame()">🎉 NEW GAME</button>
+    <button class="again" onclick="newGame()">&#127881; NEW GAME</button>
     <button class="keep" onclick="hideWin()">KEEP SCORING</button>
   </div>
 </div>
@@ -379,14 +380,14 @@ function render() {
     const isLeader = t === max && t > 0;
     const done = inCurrentRound(p);
     const last = p.scores.length
-      ? (p.scores[p.scores.length-1] === 0 ? 'Last: BUST 💥' : 'Last: +' + p.scores[p.scores.length-1])
+      ? (p.scores[p.scores.length-1] === 0 ? 'Last: BUST &#128165;' : 'Last: +' + p.scores[p.scores.length-1])
       : 'Tap to score';
     list.insertAdjacentHTML('beforeend',
       `<div class="player-card ${isLeader?'leader':''} ${done?'scored-this-round':''}" onclick="openModal(${i})">
          <div class="pc-left">
            <div class="pc-dot" style="background:${p.color}">${p.name[0].toUpperCase()}</div>
            <div class="pc-info">
-             <div class="pc-name">${esc(p.name)}${isLeader?'<span class="crown">👑</span>':''}</div>
+             <div class="pc-name">${esc(p.name)}${isLeader?'<span class="crown">&#128081;</span>':''}</div>
              <div class="pc-last">${last}</div>
            </div>
          </div>
@@ -442,9 +443,7 @@ function submitScore(val) {
   history.push(scoredIdx);
   render();
   checkWin();
-
   if (winShown) { closeModal(); return; }
-
   const nextIdx = findNextPlayer(scoredIdx);
   if (nextIdx !== null) {
     currentPlayer = nextIdx;
@@ -459,7 +458,6 @@ function submitScore(val) {
     closeModal();
   }
 }
-
 function findNextPlayer(fromIdx) {
   const n = players.length;
   for (let offset = 1; offset < n; offset++) {
@@ -488,7 +486,7 @@ function checkWin() {
   if (best) {
     winShown = true;
     document.getElementById('winName').textContent = best.name + ' WINS!';
-    document.getElementById('winMsg').textContent = total(best) + ' points 🔥';
+    document.getElementById('winMsg').textContent = total(best) + ' points &#128293;';
     document.getElementById('winBanner').classList.add('show');
     confetti();
   }
@@ -496,11 +494,11 @@ function checkWin() {
 function hideWin() { document.getElementById('winBanner').classList.remove('show'); }
 function confetti() {
   const banner = document.getElementById('winBanner');
-  const emojis = ['🎉','✨','🎊','⭐','💛','🃏'];
+  const emojis = ['&#127881;','&#10024;','&#127882;','&#11088;','&#128155;','&#127183;'];
   for (let i = 0; i < 40; i++) {
     const s = document.createElement('div');
     s.className = 'confetti';
-    s.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+    s.innerHTML = emojis[Math.floor(Math.random() * emojis.length)];
     s.style.left = Math.random() * 100 + 'vw';
     s.style.animationDuration = 2 + Math.random() * 3 + 's';
     s.style.animationDelay = Math.random() * 1.5 + 's';
