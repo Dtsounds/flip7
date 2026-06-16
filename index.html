@@ -146,6 +146,7 @@
     z-index: 50;
     align-items: center; justify-content: center;
     padding: 16px;
+    overflow-y: auto;
   }
   #overlay.show { display: flex; }
   .modal {
@@ -193,6 +194,41 @@
   .bust-btn { background: linear-gradient(90deg, #ff5e7e, #e63956); grid-column: 1 / -1; }
   .ok-btn { background: linear-gradient(90deg, #3ddc84, #1fa860); color: #0b3320; }
   .cancel-btn { background: rgba(255,255,255,0.15); }
+
+  /* ---------- Modal scoreboard ---------- */
+  .modal-scoreboard {
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(255,255,255,0.12);
+  }
+  .modal-scoreboard-label {
+    font-size: 11px; font-weight: 700; letter-spacing: 1.5px;
+    text-transform: uppercase; color: rgba(255,255,255,0.35);
+    text-align: center; margin-bottom: 8px;
+  }
+  .sb-row {
+    display: flex; align-items: center;
+    padding: 6px 10px; border-radius: 10px; margin-bottom: 3px;
+    background: rgba(255,255,255,0.04);
+    border: 2px solid transparent;
+    transition: background 0.15s;
+  }
+  .sb-row.sb-active { background: rgba(255,255,255,0.13); }
+  .sb-dot {
+    width: 18px; height: 18px; border-radius: 50%;
+    flex-shrink: 0; margin-right: 9px;
+  }
+  .sb-name {
+    flex: 1; font-size: 14px; font-weight: 700;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    color: rgba(255,255,255,0.75);
+  }
+  .sb-row.sb-active .sb-name { color: #fff; }
+  .sb-score {
+    font-size: 16px; font-weight: 900; flex-shrink: 0; margin-left: 8px;
+    color: rgba(255,255,255,0.55);
+  }
+  .sb-row.sb-active .sb-score { color: var(--gold); }
 
   /* ---------- Win banner ---------- */
   #winBanner {
@@ -275,6 +311,10 @@
     <div class="modal-actions">
       <button class="cancel-btn" onclick="closeModal()">CANCEL</button>
       <button class="ok-btn" onclick="submitEntered()">✓ OK</button>
+    </div>
+    <div class="modal-scoreboard">
+      <div class="modal-scoreboard-label">SCORES</div>
+      <div id="modalScoreboard"></div>
     </div>
   </div>
 </div>
@@ -365,7 +405,24 @@ function openModal(i) {
   document.getElementById('modalSub').textContent =
     `Round ${p.scores.length + 1} · Current total: ${total(p)}`;
   updateDisplay();
+  updateModalScoreboard();
   document.getElementById('overlay').classList.add('show');
+}
+function updateModalScoreboard() {
+  const sb = document.getElementById('modalScoreboard');
+  if (!sb) return;
+  sb.innerHTML = '';
+  players.forEach((p, i) => {
+    const isActive = i === currentPlayer;
+    const row = document.createElement('div');
+    row.className = 'sb-row' + (isActive ? ' sb-active' : '');
+    if (isActive) row.style.borderColor = p.color;
+    row.innerHTML =
+      `<div class="sb-dot" style="background:${p.color}"></div>` +
+      `<div class="sb-name">${esc(p.name)}</div>` +
+      `<div class="sb-score">${total(p)}</div>`;
+    sb.appendChild(row);
+  });
 }
 function closeModal() { document.getElementById('overlay').classList.remove('show'); currentPlayer = null; }
 function padDigit(d) { if (entered.length < 3) { entered += d; updateDisplay(); } }
@@ -397,6 +454,7 @@ function submitScore(val) {
     document.getElementById('modalSub').textContent =
       `Round ${p.scores.length + 1} · Current total: ${total(p)}`;
     updateDisplay();
+    updateModalScoreboard();
   } else {
     closeModal();
   }
