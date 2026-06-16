@@ -294,13 +294,12 @@
 const COLORS = ['#ffd23f','#ff5e7e','#4cc9f0','#3ddc84','#b388ff','#ff9a3f','#f72585','#80ffdb'];
 const TARGET = 200;
 
-let players = [];      // [{name, color, scores:[]}]
-let history = [];      // [{playerIdx}] in entry order
+let players = [];
+let history = [];
 let currentPlayer = null;
 let entered = '';
 let winShown = false;
 
-// ----- Setup -----
 const nameRows = document.getElementById('nameRows');
 for (let i = 0; i < 8; i++) {
   nameRows.insertAdjacentHTML('beforeend',
@@ -324,21 +323,17 @@ function startGame() {
   render();
 }
 
-// ----- Helpers -----
 const total = p => p.scores.reduce((a, b) => a + b, 0);
 const currentRound = () => Math.min(...players.map(p => p.scores.length)) + 1;
 const inCurrentRound = p => p.scores.length >= currentRound();
 
-// ----- Render -----
 function render() {
   document.getElementById('roundNum').textContent = currentRound();
   document.getElementById('undoBtn').disabled = history.length === 0;
-
   const totals = players.map(total);
   const max = Math.max(...totals);
   const list = document.getElementById('playerList');
   list.innerHTML = '';
-
   players.forEach((p, i) => {
     const t = totals[i];
     const isLeader = t === max && t > 0;
@@ -362,7 +357,6 @@ function render() {
 
 function esc(s){ const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
 
-// ----- Score modal -----
 function openModal(i) {
   currentPlayer = i;
   entered = '';
@@ -386,14 +380,37 @@ function submitEntered() {
 }
 function submitScore(val) {
   if (currentPlayer === null) return;
-  players[currentPlayer].scores.push(val);
-  history.push(currentPlayer);
-  closeModal();
+  const scoredIdx = currentPlayer;
+  players[scoredIdx].scores.push(val);
+  history.push(scoredIdx);
   render();
   checkWin();
+
+  if (winShown) { closeModal(); return; }
+
+  const nextIdx = findNextPlayer(scoredIdx);
+  if (nextIdx !== null) {
+    currentPlayer = nextIdx;
+    entered = '';
+    const p = players[nextIdx];
+    document.getElementById('modalName').textContent = p.name;
+    document.getElementById('modalSub').textContent =
+      `Round ${p.scores.length + 1} · Current total: ${total(p)}`;
+    updateDisplay();
+  } else {
+    closeModal();
+  }
 }
 
-// ----- Undo -----
+function findNextPlayer(fromIdx) {
+  const n = players.length;
+  for (let offset = 1; offset < n; offset++) {
+    const idx = (fromIdx + offset) % n;
+    if (!inCurrentRound(players[idx])) return idx;
+  }
+  return null;
+}
+
 function undo() {
   if (!history.length) return;
   const i = history.pop();
@@ -403,7 +420,6 @@ function undo() {
   render();
 }
 
-// ----- Win -----
 function checkWin() {
   if (winShown) return;
   let best = null;
@@ -435,7 +451,6 @@ function confetti() {
   }
 }
 
-// ----- New game -----
 function confirmNewGame() {
   if (history.length === 0 || confirm('Start a new game? Current scores will be lost.')) newGame();
 }
@@ -443,7 +458,6 @@ function newGame() {
   hideWin();
   document.getElementById('game').style.display = 'none';
   document.getElementById('setup').style.display = 'block';
-  // keep names in the inputs so a rematch is one tap away
 }
 </script>
 </body>
