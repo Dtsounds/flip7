@@ -58,7 +58,7 @@
     box-shadow: 0 6px 0 rgba(0,0,0,0.3); transition: transform 0.08s;
   }
   .big-btn:active { transform: translateY(4px); box-shadow: 0 2px 0 rgba(0,0,0,0.3); }
-  #game { display: none; max-width: 760px; margin: 0 auto; }
+  #game { display: none; max-width: 520px; margin: 0 auto; }
   .round-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; flex-wrap: wrap; gap: 8px; }
   .round-label {
     font-size: 22px; font-weight: 800; color: var(--gold);
@@ -74,8 +74,7 @@
   .ctrl-btn:disabled { opacity: 0.35; cursor: default; }
   #undoBtn { background: linear-gradient(90deg, #ff9a3f, #ff5e7e); }
   #newGameBtn { background: linear-gradient(90deg, #4cc9f0, #b388ff); }
-  .players { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 12px; }
-  @media (max-width: 700px) { .players { grid-template-columns: 1fr; } }
+  .players { display: grid; grid-template-columns: 1fr; gap: 12px; }
   .player-card {
     display: flex; align-items: center; justify-content: space-between;
     padding: 18px 20px; border-radius: 18px; background: rgba(255,255,255,0.08);
@@ -224,7 +223,6 @@ function render(){
 
 function esc(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML;}
 
-/* ---- Sound effects ---- */
 let _ac=null;
 function getAC(){
   if(!_ac)_ac=new(window.AudioContext||window.webkitAudioContext)();
@@ -286,7 +284,6 @@ function playWin(){
   }catch(e){}
 }
 
-/* ---- Modal ---- */
 function openModal(i){
   currentPlayer=i;entered='';
   const p=players[i];
@@ -333,14 +330,10 @@ function findNextPlayer(fromIdx){
   for(let offset=1;offset<n;offset++){const idx=(fromIdx+offset)%n;if(!inCurrentRound(players[idx]))return idx;}
   return null;
 }
-
-/* ---- Undo ---- */
 function undo(){
   if(!history.length)return;
   const i=history.pop();players[i].scores.pop();winShown=false;hideWin();render();
 }
-
-/* ---- Win ---- */
 function checkWin(){
   if(winShown)return;
   let best=null;
@@ -366,8 +359,6 @@ function confetti(){
     banner.appendChild(s);setTimeout(()=>s.remove(),6000);
   }
 }
-
-/* ---- New game ---- */
 function confirmNewGame(){if(history.length===0||confirm('Start a new game? Current scores will be lost.'))newGame();}
 function newGame(){hideWin();document.getElementById('game').style.display='none';document.getElementById('setup').style.display='block';}
 </script>
