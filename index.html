@@ -392,7 +392,7 @@ sb.appendChild(row);
 });
 }
 function closeModal(){document.getElementById('overlay').classList.remove('show');currentPlayer=null;}
-function padDigit(d){if(entered.length<3){entered+=d;updateDisplay();playTap();}
+function padDigit(d){if(entered.length<3){entered+=d;updateDisplay();playTap();}}
 function padBack(){entered=entered.slice(0,-1);updateDisplay();playTap();}
 function padClear(){entered='';updateDisplay();playTap();}
 function updateDisplay(){document.getElementById('scoreDisplay').innerHTML=entered===''?'&nbsp;':entered;}
@@ -436,7 +436,7 @@ let best=null;
 players.forEach(p=>{const t=total(p);if(t>=TARGET&&(!best||t>total(best)))best=p;});
 if(best){
 winShown=true;playWin();
-document.documentElement.classList.add('barrel-roll');
+document.documentElement.classList.add('barrel-roll');h
 setTimeout(()=>document.documentElement.classList.remove('barrel-roll'),1500);
 document.getElementById('winName').textContent=best.name+' WINS!';
 document.getElementById('winMsg').textContent=total(best)+' points 🔥';
