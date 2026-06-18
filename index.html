@@ -346,7 +346,7 @@ const i=history.pop();players[i].scores.pop();winShown=false;hideWin();render();
 function confirmUndoRound(){
 const r=Math.min(...players.map(p=>p.scores.length));
 if(r===0)return;
-if(confirm(‘Undo Round ‘+r+’? This will remove everyone’s scores from that round so it can be re-entered.’))undoLastRound();
+if(confirm('Undo Round '+r+'? This will remove everyone’s scores from that round so it can be re-entered.'))undoLastRound();
 }
 function undoLastRound(){
 const r=Math.min(...players.map(p=>p.scores.length));
