@@ -123,7 +123,7 @@ position: relative; overflow: hidden;
 .modal-scoreboard-label { font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(255,255,255,0.35); text-align: center; margin-bottom: 5px; }
 .sb-row { display: flex; align-items: center; padding: 4px 8px; border-radius: 8px; margin-bottom: 2px; background: rgba(255,255,255,0.04); border: 2px solid transparent; transition: background 0.15s; }
 .sb-row.sb-active { background: rgba(255,255,255,0.13); }
-.sb-dot { width: 18px; height: 18px; border-radius: 50%; flex-shrink: 0; margin-right: 9px; overflow: hidden; }
+.sb-dot { width: 18px; height: 18px; border-radius: 50%; flex-shrink: `; margin-right: 9px; overflow: hidden; }
 .sb-dot img { width: 18px; height: 18px; border-radius: 50%; object-fit: cover; display: block; }
 .sb-name { flex: 1; font-size: 14px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: rgba(255,255,255,0.75); }
 .sb-row.sb-active .sb-name { color: #fff; }
@@ -147,6 +147,17 @@ position: relative; overflow: hidden;
 100% { transform: rotate(720deg) scale(1); }
 }
 html.barrel-roll { animation: barrelRoll 1.4s cubic-bezier(0.4, 0.0, 0.2, 1) forwards; transform-origin: center center; }
+.modal-toggle{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px;}
+.modal-toggle-btn{font-size:15px;font-weight:700;padding:9px 4px;border:none;border-radius:10px;cursor:pointer;color:rgba(255,255,255,0.5);background:rgba(255,255,255,0.08);transition:background 0.15s,color 0.15s;}
+.modal-toggle-btn.mtb-active{background:rgba(255,255,255,0.2);color:#fff;}
+.lb-row{display:flex;align-items:center;padding:9px 10px;border-radius:12px;margin-bottom:5px;background:rgba(255,255,255,0.06);border:2px solid transparent;}
+.lb-row.lb-active{background:rgba(255,255,255,0.13);border-color:rgba(255,255,255,0.18);}
+.lb-row.lb-leader .lb-score{color:var(--gold);}
+.lb-rank{font-size:12px;font-weight:800;color:rgba(255,255,255,0.35);width:22px;flex-shrink:0;text-align:center;}
+.lb-dot{width:34px;height:34px;border-radius:50%;flex-shrink:0;margin:0 10px;overflow:hidden;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:16px;color:#1a1040;}
+.lb-dot img{width:34px;height:34px;border-radius:50%;object-fit:cover;display:block;}
+.lb-name{flex:1;font-size:15px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.lb-score{font-size:20px;font-weight:900;flex-shrink:0;margin-left:8px;}
 </style>
 </head>
 <body>
@@ -172,6 +183,11 @@ html.barrel-roll { animation: barrelRoll 1.4s cubic-bezier(0.4, 0.0, 0.2, 1) for
 <div class="modal-avatar-wrap" id="modalAvatarWrap" style="display:none"><img class="modal-avatar" id="modalAvatarImg" src="" alt=""></div>
 <div class="modal-title" id="modalName"></div>
 <div class="modal-sub" id="modalSub"></div>
+<div class="modal-toggle">
+<button class="modal-toggle-btn mtb-active" id="mtbScore" onclick="switchModalView('score')">&#9998; Score</button>
+<button class="modal-toggle-btn" id="mtbLb" onclick="switchModalView('lb')">&#128202; Leaderboard</button>
+</div>
+<div id="scorePanel">
 <div class="score-display" id="scoreDisplay">&nbsp;</div>
 <div class="pad">
 <button onclick="padDigit(1)">1</button><button onclick="padDigit(2)">2</button><button onclick="padDigit(3)">3</button>
@@ -189,6 +205,10 @@ html.barrel-roll { animation: barrelRoll 1.4s cubic-bezier(0.4, 0.0, 0.2, 1) for
 <div id="modalScoreboard"></div>
 </div>
 </div>
+<div id="lbPanel" style="display:none">
+<div id="lbScoreboard"></div>
+</div>
+</div>
 </div>
 <div id="winBanner">
 <div class="win-trophy">&#127942;</div>
@@ -202,7 +222,7 @@ html.barrel-roll { animation: barrelRoll 1.4s cubic-bezier(0.4, 0.0, 0.2, 1) for
 <script>
 const COLORS=['#ffd23f','#ff5e7e','#4cc9f0','#3ddc84','#b388ff','#ff9a3f','#f72585','#80ffdb'];
 const TARGET=200;
-let players=[],history=[],currentPlayer=null,entered='',winShown=false;
+let players=[],history=[],currentPlayer=null,entered='',winShown=false,modalView='score';
 const avatars=new Array(8).fill(null);
 
 function setAvatar(i,input){
@@ -332,7 +352,31 @@ function openModal(i){
 currentPlayer=i;entered='';
 updateModalHeader(i);
 updateDisplay();updateModalScoreboard();
+switchModalView('score');
 document.getElementById('overlay').classList.add('show');
+}
+function switchModalView(view){
+modalView=view;
+document.getElementById('scorePanel').style.display=view==='score'?'':'none';
+document.getElementById('lbPanel').style.display=view==='lb'?'':'none';
+document.getElementById('mtbScore').classList.toggle('mtb-active',view==='score');
+document.getElementById('mtbLb').classList.toggle('mtb-active',view==='lb');
+if(view==='lb')updateLbPanel();
+}
+function updateLbPanel(){
+const lb=document.getElementById('lbScoreboard');if(!lb)return;lb.innerHTML='';
+const sorted=[...players].map((p,i)=>({p,i})).sort((a,b)=>total(b.p)-total(a.p));
+const max=Math.max(...players.map(total));
+sorted.forEach(({p,i},rank)=>{
+const t=total(p),isLeader=t===max&&t>0,isActive=i===currentPlayer;
+const row=document.createElement('div');
+row.className='lb-row'+(isActive?' lb-active':'')+(isLeader?' lb-leader':'');
+if(isActive)row.style.borderColor=p.color;
+const dotContent=p.avatar?`<img src="${p.avatar}" alt="">`:p.name[0].toUpperCase();
+const dotBg=p.avatar?'transparent':p.color;
+row.innerHTML=`<div class="lb-rank">${rank+1}</div><div class="lb-dot" style="background:${dotBg}">${dotContent}</div><div class="lb-name">${esc(p.name)}</div><div class="lb-score">${t}</div>`;
+lb.appendChild(row);
+});
 }
 function updateModalScoreboard(){
 const sb=document.getElementById('modalScoreboard');if(!sb)return;sb.innerHTML='';
@@ -343,12 +387,12 @@ row.className='sb-row'+(isActive?' sb-active':'');
 if(isActive)row.style.borderColor=p.color;
 const sbDotContent=p.avatar?`<img src="${p.avatar}" alt="">`:'';
 const sbDotBg=p.avatar?'transparent':p.color;
-row.innerHTML<`<div class="sb-dot" style="background:${sbDotBg}">${sbDotContent}</div><div class="sb-name">${esc(p.name)}</div><div class="sb-score">${total(p)}</div>`;
+row.innerHTML=`<div class="sb-dot" style="background:${sbDotBg}">${sbDotContent}</div><div class="sb-name">${esc(p.name)}</div><div class="sb-score">${total(p)}</div>`;
 sb.appendChild(row);
 });
 }
 function closeModal(){document.getElementById('overlay').classList.remove('show');currentPlayer=null;}
-function padDigit(d){if(entered.length<3){entered+=d;updateDisplay();}playTap();}
+function padDigit(d){if(entered.length<3){entered+=d;updateDisplay();playTap();}
 function padBack(){entered=entered.slice(0,-1);updateDisplay();playTap();}
 function padClear(){entered='';updateDisplay();playTap();}
 function updateDisplay(){document.getElementById('scoreDisplay').innerHTML=entered===''?'&nbsp;':entered;}
