@@ -58,7 +58,7 @@
     box-shadow: 0 6px 0 rgba(0,0,0,0.3); transition: transform 0.08s;
   }
   .big-btn:active { transform: translateY(4px); box-shadow: 0 2px 0 rgba(0,0,0,0.3); }
-  #game { display: none; max-width: 520px; margin: 0 auto; }
+  #game { display: none; max-width: 760px; margin: 0 auto; }
   .round-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; flex-wrap: wrap; gap: 8px; }
   .round-label {
     font-size: 22px; font-weight: 800; color: var(--gold);
@@ -73,8 +73,9 @@
   .ctrl-btn:active { transform: translateY(3px); box-shadow: 0 1px 0 rgba(0,0,0,0.3); }
   .ctrl-btn:disabled { opacity: 0.35; cursor: default; }
   #undoBtn { background: linear-gradient(90deg, #ff9a3f, #ff5e7e); }
-  #newGameBtn { background: linear-gradient(90deg, #4cc9f0, #b388ff); }
-  .players { display: grid; grid-template-columns: 1fr; gap: 12px; }
+  #undoRoundBtn { background: linear-gradient(90deg, #b388ff, #7c4dff); }
+  #newGameBtn { background: linear-gradient(90deg, #4cc9f0, #00b4d8); }
+  .players { display: grid; grid-template-columns: 1fr; gap: 12px; max-width: 520px; margin: 0 auto; }
   .player-card {
     display: flex; align-items: center; justify-content: space-between;
     padding: 18px 20px; border-radius: 18px; background: rgba(255,255,255,0.08);
@@ -149,6 +150,7 @@
     <div class="round-label">ROUND <span id="roundNum">1</span></div>
     <div class="ctrl-btns">
       <button class="ctrl-btn" id="undoBtn" onclick="undo()" disabled>&#8617; UNDO</button>
+      <button class="ctrl-btn" id="undoRoundBtn" onclick="confirmUndoRound()" disabled>&#8635; UNDO ROUND</button>
       <button class="ctrl-btn" id="newGameBtn" onclick="confirmNewGame()">&#10022; NEW GAME</button>
     </div>
   </div>
@@ -213,6 +215,7 @@ const inCurrentRound=p=>p.scores.length>=currentRound();
 function render(){
   document.getElementById('roundNum').textContent=currentRound();
   document.getElementById('undoBtn').disabled=history.length===0;
+  document.getElementById('undoRoundBtn').disabled=Math.min(...players.map(p=>p.scores.length))===0;
   const totals=players.map(total),max=Math.max(...totals);
   const list=document.getElementById('playerList');list.innerHTML='';
   const sorted=[...players].map((p,i)=>({p,i})).sort((a,b)=>total(b.p)-total(a.p));
@@ -229,6 +232,7 @@ function render(){
 
 function esc(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML;}
 
+/* ---- Sound effects ---- */
 let _ac=null;
 function getAC(){
   if(!_ac)_ac=new(window.AudioContext||window.webkitAudioContext)();
@@ -290,11 +294,12 @@ function playWin(){
   }catch(e){}
 }
 
+/* ---- Modal ---- */
 function openModal(i){
   currentPlayer=i;entered='';
   const p=players[i];
   document.getElementById('modalName').textContent=p.name;
-  document.getElementById('modalSub').textContent=`Round ${p.scores.length+1} · Current total: ${total(p)}`;
+  document.getElementById('modalSub').textContent=`Round ${p.scores.length+1} \xb7 Current total: ${total(p)}`;
   updateDisplay();updateModalScoreboard();
   document.getElementById('overlay').classList.add('show');
 }
@@ -327,7 +332,7 @@ function submitScore(val){
     currentPlayer=nextIdx;entered='';
     const p=players[nextIdx];
     document.getElementById('modalName').textContent=p.name;
-    document.getElementById('modalSub').textContent=`Round ${p.scores.length+1} · Current total: ${total(p)}`;
+    document.getElementById('modalSub').textContent=`Round ${p.scores.length+1} \xb7 Current total: ${total(p)}`;
     updateDisplay();updateModalScoreboard();
   }else{closeModal();}
 }
@@ -336,39 +341,28 @@ function findNextPlayer(fromIdx){
   for(let offset=1;offset<n;offset++){const idx=(fromIdx+offset)%n;if(!inCurrentRound(players[idx]))return idx;}
   return null;
 }
+
+/* ---- Undo ---- */
 function undo(){
   if(!history.length)return;
   const i=history.pop();players[i].scores.pop();winShown=false;hideWin();render();
 }
+function confirmUndoRound(){
+  const r=Math.min(...players.map(p=>p.scores.length));
+  if(r===0)return;
+  if(confirm('Undo Round '+r+'? This will remove everyone’s scores from that round so it can be re-entered.'))undoLastRound();
+}
+function undoLastRound(){
+  const r=Math.min(...players.map(p=>p.scores.length));
+  if(r===0)return;
+  players.forEach(p=>{p.scores=p.scores.slice(0,r-1);});
+  history=[];winShown=false;hideWin();render();
+}
+
+/* ---- Win ---- */
 function checkWin(){
   if(winShown)return;
   let best=null;
   players.forEach(p=>{const t=total(p);if(t>=TARGET&&(!best||t>total(best)))best=p;});
   if(best){
-    winShown=true;playWin();
-    document.documentElement.classList.add('barrel-roll');
-    setTimeout(()=>document.documentElement.classList.remove('barrel-roll'),1500);
-    document.getElementById('winName').textContent=best.name+' WINS!';
-    document.getElementById('winMsg').textContent=total(best)+' points 🔥';
-    document.getElementById('winBanner').classList.add('show');
-    confetti();
-  }
-}
-function hideWin(){document.getElementById('winBanner').classList.remove('show');}
-function confetti(){
-  const banner=document.getElementById('winBanner');
-  const emojis=['🎉','✨','🎊','⭐','💛','🃏'];
-  for(let i=0;i<40;i++){
-    const s=document.createElement('div');s.className='confetti';
-    s.textContent=emojis[Math.floor(Math.random()*emojis.length)];
-    s.style.left=Math.random()*100+'vw';
-    s.style.animationDuration=2+Math.random()*3+'s';
-    s.style.animationDelay=Math.random()*1.5+'s';
-    banner.appendChild(s);setTimeout(()=>s.remove(),6000);
-  }
-}
-function confirmNewGame(){if(history.length===0||confirm('Start a new game? Current scores will be lost.'))newGame();}
-function newGame(){hideWin();document.getElementById('game').style.display='none';document.getElementById('setup').style.display='block';}
-</script>
-</body>
-</html>
+    winShown=true;playWin
