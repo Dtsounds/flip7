@@ -129,6 +129,12 @@
   .win-btns .keep { background: rgba(255,255,255,0.85); }
   .confetti { position: absolute; top: -20px; font-size: 28px; animation: fall linear forwards; }
   @keyframes fall { to { transform: translateY(110vh) rotate(720deg); opacity: 0.7; } }
+  @keyframes barrelRoll {
+    0%   { transform: rotate(0deg) scale(1); }
+    50%  { transform: rotate(360deg) scale(0.82); }
+    100% { transform: rotate(720deg) scale(1); }
+  }
+  html.barrel-roll { animation: barrelRoll 1.4s cubic-bezier(0.4, 0.0, 0.2, 1) forwards; transform-origin: center center; }
 </style>
 </head>
 <body>
@@ -340,6 +346,8 @@ function checkWin(){
   players.forEach(p=>{const t=total(p);if(t>=TARGET&&(!best||t>total(best)))best=p;});
   if(best){
     winShown=true;playWin();
+    document.documentElement.classList.add('barrel-roll');
+    setTimeout(()=>document.documentElement.classList.remove('barrel-roll'),1500);
     document.getElementById('winName').textContent=best.name+' WINS!';
     document.getElementById('winMsg').textContent=total(best)+' points 🔥';
     document.getElementById('winBanner').classList.add('show');
