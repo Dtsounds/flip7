@@ -158,6 +158,7 @@ html.barrel-roll { animation: barrelRoll 1.4s cubic-bezier(0.4, 0.0, 0.2, 1) for
 .lb-dot img{width:34px;height:34px;border-radius:50%;object-fit:cover;display:block;}
 .lb-name{flex:1;font-size:15px;font-weight:700;white-space:nowraw;overflow:hidden;text-overflow:ellipsis;}
 .lb-score{font-size:20px;font-weight:900;flex-shrink:0;margin-left:8px;}
+#clearSaveBtn{background:rgba(255,255,255,0.09);color:rgba(255,255,255,0.4);font-size:13px;padding:10px 12px;}
 </style>
 </head>
 <body>
@@ -174,6 +175,7 @@ html.barrel-roll { animation: barrelRoll 1.4s cubic-bezier(0.4, 0.0, 0.2, 1) for
 <button class="ctrl-btn" id="undoBtn" onclick="undo()" disabled>&#8617; UNDO</button>
 <button class="ctrl-btn" id="undoRoundBtn" onclick="confirmUndoRound()" disabled>&#8635; UNDO ROUND</button>
 <button class="ctrl-btn" id="newGameBtn" onclick="confirmNewGame()">&#10022; NEW GAME</button>
+<button class="ctrl-btn" id="clearSaveBtn" onclick="confirmClearSave()">&#128190; CLEAR SAVE</button>
 </div>
 </div>
 <div class="players" id="playerList"></div>
@@ -251,7 +253,7 @@ if(players.length<1){alert('Enter at least one player name!');return;}
 history=[];winShown=false;
 document.getElementById('setup').style.display='none';
 document.getElementById('game').style.display='block';
-render();
+render();saveState();
 }
 
 const total=p=>p.scores.reduce((a,b)=>a+b,0);
@@ -402,7 +404,7 @@ if(currentPlayer===null)return;
 if(val===0)playBust();else playScore();
 const scoredIdx=currentPlayer;
 players[scoredIdx].scores.push(val);history.push(scoredIdx);
-render();checkWin();
+render();checkWin();saveState();
 if(winShown){closeModal();return;}
 const nextIdx=findNextPlayer(scoredIdx);if(nextIdx!==null){
 currentPlayer=nextIdx;entered='';
@@ -417,7 +419,7 @@ return null;
 }
 function undo(){
 if(!history.length)return;
-const i=history.pop();players[i].scores.pop();winShown=false;hideWin();render();
+const i=history.pop();players[i].scores.pop();winShown=false;hideWin();render();saveState();
 }
 function confirmUndoRound(){
 const r=Math.min(...players.map(p=>p.scores.length));
@@ -428,7 +430,7 @@ function undoLastRound(){
 const r=Math.min(...players.map(p=>p.scores.length));
 if(r===0)return;
 players.forEach(p=>{p.scores=p.scores.slice(0,r-1);});
-history=[];winShown=false;hideWin();render();
+history=[];winShown=false;hideWin();render();saveState();
 }
 function checkWin(){
 if(winShown)return;
@@ -458,7 +460,25 @@ banner.appendChild(s);setTimeout(()=>s.remove(),6000);
 }
 }
 function confirmNewGame(){if(history.length===0||confirm('Start a new game? Current scores will be lost.'))newGame();}
-function newGame(){hideWin();document.getElementById('game').style.display='none';document.getElementById('setup').style.display='block';}
+function newGame(){clearSave();hideWin();document.getElementById('game').style.display='none';document.getElementById('setup').style.display='block';}
+const SAVE_KEY='flip7_save';
+function saveState(){
+if(!players.length)return;
+try{localStorage.setItem(SAVE_KEY,JSON.stringify({players:players.map(p=>({name:p.name,color:p.color,scores:[...p.scores],avatar:p.avatar})),history:[...history],winShown}));}catch(e){}
+}
+function clearSave(){try{localStorage.removeItem(SAVE_KEY);}catch(e){}}
+function confirmClearSave(){if(confirm('Clear saved game and return to setup?'))newGame();}
+function loadState(){
+try{
+const raw=localStorage.getItem(SAVE_KEY);if(!raw)return;
+const s=JSON.parse(raw);if(!s.players||!s.players.length)return;
+players=s.players;history=s.history||[];winShown=s.winShown||false;
+document.getElementById('setup').style.display='none';
+document.getElementById('game').style.display='block';
+render();
+}catch(e){}
+}
+loadState();
 </script>
 </body>
 </html>
